@@ -17,7 +17,7 @@ sed -i -- "s/REP_VAR_AZ/$var_az/g"                                       $bosh_m
 sed -i -- "s/REP_VAR_SUBNET_ID/$var_subnet_id/g"                         $bosh_manifest
 sed -i -- "s/REP_VAR_EIP/$var_eip/g"                                     $bosh_manifest
 sed -i -- "s/REP_VAR_AWS_KEY_ID/$var_aws_key_id/g"                       $bosh_manifest
-sed -i -- "s/REP_VAR_AWS_SECRET_ACCESS_KEY/$var_aws_secret_access_key/g" $bosh_manifest
+sed -i -- "s~REP_VAR_AWS_SECRET_ACCESS_KEY~$var_aws_secret_access_key~g" $bosh_manifest
 sed -i -- "s/REP_VAR_AWS_REGION/$var_aws_region/g"                       $bosh_manifest
 sed -i -- "s/REP_VAR_KEY_NAME/$var_key_name/g"                           $bosh_manifest
 

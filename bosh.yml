@@ -18,7 +18,7 @@ resource_pools:
  cloud_properties:
    instance_type: m3.xlarge
    ephemeral_disk: {size: 25_000, type: gp2}
-   availability_zone: us-east-1e # <--- Replace with Availability Zone
+   availability_zone: REP_VAR_AZ # <--- Replace with Availability Zone
 
 disk_pools:
 - name: disks
@@ -32,7 +32,7 @@ networks:
  - range: 10.0.0.0/24
    gateway: 10.0.0.1
    dns: [10.0.0.2]
-   cloud_properties: {subnet: subnet-6685685a } # <--- Replace with Subnet ID
+   cloud_properties: {subnet: REP_VAR_SUBNET_ID } # <--- Replace with Subnet ID
 - name: public
  type: vip
 
@@ -57,7 +57,7 @@ jobs:
    static_ips: [10.0.0.6]
    default: [dns, gateway]
  - name: public
-   static_ips: [52.45.54.146] # <--- Replace with Elastic IP
+   static_ips: [REP_VAR_EIP] # <--- Replace with Elastic IP
 
  properties:
    nats:
@@ -107,11 +107,11 @@ jobs:
      resurrector_enabled: true
 
    aws: &aws
-     access_key_id:  # <--- Replace with AWS Access Key ID
-     secret_access_key:  # <--- Replace with AWS Secret Key
-     default_key_name: ip-172-31-22-228-training_key
+     access_key_id: REP_VAR_AWS_KEY_ID # <--- Replace with AWS Access Key ID
+     secret_access_key: REP_VAR_AWS_SECRET_ACCESS_KEY # <--- Replace with AWS Secret Key
+     default_key_name: REP_VAR_KEY_NAME # <--- Replace with the key name
      default_security_groups: [training_sg]
-     region:   # <--- Replace with Region
+     region: REP_VAR_AWS_REGION  # <--- Replace with Region
 
    agent: {mbus: "nats://nats:nats-password@10.0.0.6:4222"}
 
@@ -121,12 +121,12 @@ cloud_provider:
  template: {name: aws_cpi, release: bosh-aws-cpi}
 
  ssh_tunnel:
-   host: 52.45.54.146 # <--- Replace with your Elastic IP address
+   host: REP_VAR_EIP # <--- Replace with your Elastic IP address
    port: 22
    user: vcap
    private_key: ./bosh.pem # Path relative to this manifest file
 
- mbus: "https://mbus:mbus-password@52.45.54.146:6868" # <--- Replace with Elastic IP
+ mbus: "https://mbus:mbus-password@REP_VAR_EIP:6868" # <--- Replace with Elastic IP
 
  properties:
    aws: *aws
