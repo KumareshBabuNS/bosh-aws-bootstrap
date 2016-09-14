@@ -81,8 +81,8 @@ eip=$(aws ec2 describe-addresses --allocation-ids $eip_id --query 'Addresses[].P
 
 echo "Create a Key Pair:"
 key_name=$(hostname)-training_key
-mkdir deployment
-aws ec2 create-key-pair --key-name $key_name --query 'KeyMaterial' --output text > deployment/bosh.pem
+mkdir ~/deployment
+aws ec2 create-key-pair --key-name $key_name --query 'KeyMaterial' --output text > ~/deployment/bosh.pem
 chmod 400 ~/deployment/bosh.pem
 
 echo "Store all variables in a file for later use"
