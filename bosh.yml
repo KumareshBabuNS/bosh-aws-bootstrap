@@ -30,9 +30,9 @@ networks:
   type: manual
   subnets:
 - range: 10.0.0.0/24
-    gateway: 10.0.0.1
-    dns: [10.0.0.2]
-    cloud_properties: {subnet: REP_VAR_SUBNET_ID } # <--- Replace with Subnet ID
+  gateway: 10.0.0.1
+  dns: [10.0.0.2]
+  cloud_properties: {subnet: REP_VAR_SUBNET_ID } # <--- Replace with Subnet ID
 - name: public
   type: vip
 
@@ -54,7 +54,7 @@ persistent_disk_pool: disks
 
 networks:
 - name: private
-  atatic_ips: [10.0.0.6]
+  static_ips: [10.0.0.6]
   default: [dns, gateway]
 - name: public
   static_ips: [REP_VAR_EIP] # <--- Replace with Elastic IP
