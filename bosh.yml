@@ -29,10 +29,10 @@ networks:
 - name: private
   type: manual
   subnets:
-- range: 10.0.0.0/24
-  gateway: 10.0.0.1
-  dns: [10.0.0.2]
-  cloud_properties: {subnet: REP_VAR_SUBNET_ID } # <--- Replace with Subnet ID
+  - range: 10.0.0.0/24
+    gateway: 10.0.0.1
+    dns: [10.0.0.2]
+    cloud_properties: {subnet: REP_VAR_SUBNET_ID} # <--- Replace with Subnet ID
 - name: public
   type: vip
 
@@ -40,96 +40,96 @@ jobs:
 - name: bosh
   instances: 1
 
-templates:
-- {name: nats, release: bosh}
-- {name: postgres, release: bosh}
-- {name: blobstore, release: bosh}
-- {name: director, release: bosh}
-- {name: health_monitor, release: bosh}
-- {name: registry, release: bosh}
-- {name: aws_cpi, release: bosh-aws-cpi}
+  templates:
+  - {name: nats, release: bosh}
+  - {name: postgres, release: bosh}
+  - {name: blobstore, release: bosh}
+  - {name: director, release: bosh}
+  - {name: health_monitor, release: bosh}
+  - {name: registry, release: bosh}
+  - {name: aws_cpi, release: bosh-aws-cpi}
 
-resource_pool: vms
-persistent_disk_pool: disks
+  resource_pool: vms
+  persistent_disk_pool: disks
 
-networks:
-- name: private
-  static_ips: [10.0.0.6]
-  default: [dns, gateway]
-- name: public
-  static_ips: [REP_VAR_EIP] # <--- Replace with Elastic IP
+  networks:
+  - name: private
+    static_ips: [10.0.0.6]
+    default: [dns, gateway]
+  - name: public
+    static_ips: [REP_VAR_EIP] # <--- Replace with Elastic IP
 
-properties:
-  nats:
-    address: 127.0.0.1
-    user: nats
-    password: nats-password
+  properties:
+    nats:
+      address: 127.0.0.1
+      user: nats
+      password: nats-password
 
-  postgres: &db
-    listen_address: 127.0.0.1
-    host: 127.0.0.1
-    user: postgres
-    password: postgres-password
-    database: bosh
-    adapter: postgres
+    postgres: &db
+      listen_address: 127.0.0.1
+      host: 127.0.0.1
+      user: postgres
+      password: postgres-password
+      database: bosh
+      adapter: postgres
 
-  registry:
-    address: 10.0.0.6
-    host: 10.0.0.6
-    db: *db
-    http: {user: admin, password: admin, port: 25777}
-    username: admin
-    password: admin
-    port: 25777
+    registry:
+      address: 10.0.0.6
+      host: 10.0.0.6
+      db: *db
+      http: {user: admin, password: admin, port: 25777}
+      username: admin
+      password: admin
+      port: 25777
 
-  blobstore:
-    address: 10.0.0.6
-    port: 25250
-    provider: dav
-    director: {user: director, password: director-password}
-    agent: {user: agent, password: agent-password}
+    blobstore:
+      address: 10.0.0.6
+      port: 25250
+      provider: dav
+      director: {user: director, password: director-password}
+      agent: {user: agent, password: agent-password}
 
-  director:
-    address: 127.0.0.1
-    name: my-bosh
-    db: *db
-    cpi_job: aws_cpi
-    max_threads: 10
-    user_management:
-      provider: local
-      local:
-        users:
-        - {name: admin, password: admin}
-        - {name: hm, password: hm-password}
+    director:
+      address: 127.0.0.1
+      name: my-bosh
+      db: *db
+      cpi_job: aws_cpi
+      max_threads: 10
+      user_management:
+        provider: local
+        local:
+          users:
+          - {name: admin, password: admin}
+          - {name: hm, password: hm-password}
 
-  hm:
-    director_account: {user: hm, password: hm-password}
-    resurrector_enabled: true
+    hm:
+      director_account: {user: hm, password: hm-password}
+      resurrector_enabled: true
 
-  aws: &aws
-    access_key_id: REP_VAR_AWS_KEY_ID # <--- Replace with AWS Access Key ID
-    secret_access_key: REP_VAR_AWS_SECRET_ACCESS_KEY # <--- Replace with AWS Secret Key
-    default_key_name: REP_VAR_KEY_NAME # <--- Replace with the key name
-    default_security_groups: [training_sg]
-    region: REP_VAR_AWS_REGION  # <--- Replace with Region
+    aws: &aws
+      access_key_id: REP_VAR_AWS_KEY_ID # <--- Replace with AWS Access Key ID
+      secret_access_key: REP_VAR_AWS_SECRET_ACCESS_KEY # <--- Replace with AWS Secret Key
+      default_key_name: REP_VAR_KEY_NAME
+      default_security_groups: [training_sg]
+      region: REP_VAR_AWS_REGION  # <--- Replace with Region
 
-  agent: {mbus: "nats://nats:nats-password@10.0.0.6:4222"}
+    agent: {mbus: "nats://nats:nats-password@10.0.0.6:4222"}
 
-  ntp: &ntp [0.pool.ntp.org, 1.pool.ntp.org]
+    ntp: &ntp [0.pool.ntp.org, 1.pool.ntp.org]
 
 cloud_provider:
   template: {name: aws_cpi, release: bosh-aws-cpi}
 
-ssh_tunnel:
-  host: REP_VAR_EIP # <--- Replace with your Elastic IP address
-  port: 22
-  user: vcap
-  private_key: ./bosh.pem # Path relative to this manifest file
+  ssh_tunnel:
+    host: REP_VAR_EIP # <--- Replace with your Elastic IP address
+    port: 22
+    user: vcap
+    private_key: ./bosh.pem # Path relative to this manifest file
 
-mbus: "https://mbus:mbus-password@REP_VAR_EIP:6868" # <--- Replace with Elastic IP
+  mbus: "https://mbus:mbus-password@REP_VAR_EIP:6868" # <--- Replace with Elastic IP
 
-properties:
-  aws: *aws
-  agent: {mbus: "https://mbus:mbus-password@0.0.0.0:6868"}
-  blobstore: {provider: local, path: /var/vcap/micro_bosh/data/cache}
-  ntp: *ntp
+  properties:
+    aws: *aws
+    agent: {mbus: "https://mbus:mbus-password@0.0.0.0:6868"}
+    blobstore: {provider: local, path: /var/vcap/micro_bosh/data/cache}
+    ntp: *ntp

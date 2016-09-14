@@ -1,27 +1,35 @@
 #!/bin/bash -e
 
+echo "Add necessary repositories to APT"
+sudo apt-add-repository ppa:brightbox/ruby-ng -y
+sudo apt-get update --fix-missing
+
+
+echo "Install bosh-init"
 wget https://s3.amazonaws.com/bosh-init-artifacts/bosh-init-0.0.96-linux-amd64 -O bosh-init
 sudo install -m0755 bosh-init /usr/local/bin/bosh-init
 rm bosh-init
 
+echo "Test that bosh-init was installed"
 bosh-init -v
 
-sudo apt-add-repository ppa:brightbox/ruby-ng -y
-sudo apt-get update
-sudo apt-get install -y build-essential zlibc zlib1g-dev ruby-dev openssl libxslt-dev libxslt1-dev libpq-dev libxml2-dev libssl-dev libreadline6 libreadline6-dev libyaml-dev libsqlite3-dev sqlite3 software-properties-common libmysqlclient-dev ruby2.1
+echo "Install compilation packages and Ruby"
+sudo apt-get install -y build-essential zlibc zlib1g-dev ruby-dev openssl libxslt-dev libxslt1-dev libpq-dev libxml2-dev libssl-dev libreadline6 libreadline6-dev libyaml-dev libsqlite3-dev sqlite3 software-properties-common libmysqlclient-dev ruby2.1 unzip
 sudo update-alternatives --set ruby /usr/bin/ruby2.1
 
+echo "Test that Ruby was correctly installed"
 ruby --version
 
+echo "Install the BOSH CLI"
 sudo gem install bosh_cli --no-ri --no-rdoc --no-user-install
 
-sudo apt-get install -y unzip
-
+echo "Download and install the AWS CLI"
 curl -O https://s3.amazonaws.com/aws-cli/awscli-bundle.zip
 unzip awscli-bundle.zip
 sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
 rm awscli-bundle* -rf
 
+echo "Configure the AWS credentials and Region"
 aws configure
 
 echo "Create a Virtual Private Cloud (VPC)"
@@ -75,7 +83,7 @@ echo "Create a Key Pair:"
 key_name=$(hostname)-training_key
 mkdir deployment
 aws ec2 create-key-pair --key-name $key_name --query 'KeyMaterial' --output text > deployment/bosh.pem
-chmod 400 deployment/bosh.pem
+chmod 400 ~/deployment/bosh.pem
 
 echo "Store all variables in a file for later use"
 cat > ~/deployment/vars <<EOF
@@ -89,4 +97,4 @@ export eip=$eip
 export avz=$avz
 export key_name=$key_name
 EOF
-chmod +x deployment/vars
+chmod +x ~/deployment/vars
